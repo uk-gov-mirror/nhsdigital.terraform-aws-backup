@@ -538,3 +538,9 @@ variable "lambda_restore_to_s3_max_wait_minutes" {
   type        = number
   default     = 5
 }
+
+variable "lambda_insights_enable" {
+  description = "Enable the Lambda functions to generate insights from backup data."
+  type        = bool
+  default     = false
+}

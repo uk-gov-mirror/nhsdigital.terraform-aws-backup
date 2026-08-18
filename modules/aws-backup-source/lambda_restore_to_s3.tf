@@ -79,6 +79,8 @@ resource "aws_lambda_function" "lambda_restore_to_s3" {
   source_code_hash = data.archive_file.lambda_restore_to_s3_zip[0].output_base64sha256
   timeout          = var.lambda_restore_to_s3_max_wait_minutes * 60
 
+  layers = var.lambda_insights_enable ? [local.lambda_insights_layer_arn] : []
+
   environment {
     variables = {
       POLL_INTERVAL_SECONDS = var.lambda_restore_to_s3_poll_interval_seconds

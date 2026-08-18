@@ -21,4 +21,6 @@ locals {
   ))
   aurora_overrides    = var.backup_plan_config_aurora.restore_testing_overrides == null ? null : jsondecode(var.backup_plan_config_aurora.restore_testing_overrides)
   terraform_role_arns = length(var.terraform_role_arns) > 0 ? var.terraform_role_arns : [var.terraform_role_arn]
+
+  lambda_insights_layer_arn = "arn:aws:lambda:eu-west-2:580247275435:layer:LambdaInsightsExtension:66"
 }

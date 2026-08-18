@@ -66,6 +66,9 @@ resource "aws_lambda_function" "lambda_post_build_version" {
   role             = aws_iam_role.iam_for_lambda_post_build_version.arn
   handler          = "post_build_version.lambda_handler"
   runtime          = "python3.12"
+
+  layers = var.lambda_insights_enable ? [local.lambda_insights_layer_arn] : []
+
   environment {
     variables = {
       AWS_ACCOUNT_ID      = data.aws_caller_identity.current.account_id
