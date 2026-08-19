@@ -59,6 +59,12 @@ resource "aws_iam_role_policy_attachment" "lambda_copy_recovery_point_policy_att
   policy_arn = aws_iam_policy.iam_policy_for_lambda_copy_recovery_point[0].arn
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_copy_recovery_point_cloudwatch_insights" {
+  count      = var.lambda_copy_recovery_point_enable && var.lambda_insights_enable ? 1 : 0
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
+  role       = aws_iam_role.iam_for_lambda_copy_recovery_point[0].name
+}
+
 resource "aws_lambda_function" "lambda_copy_recovery_point" {
   count            = var.lambda_copy_recovery_point_enable ? 1 : 0
   function_name    = "${local.resource_name_prefix}_lambda-copy-recovery-point"
