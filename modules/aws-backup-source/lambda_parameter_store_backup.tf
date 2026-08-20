@@ -117,6 +117,12 @@ resource "aws_iam_role_policy" "lambda_parameter_store_backup_iam_permissions" {
   policy = data.aws_iam_policy_document.lambda_parameter_store_backup_permissions[0].json
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_parameter_store_backup_cloudwatch_insights" {
+  count      = var.backup_plan_config_parameter_store.enable && var.lambda_insights_enable ? 1 : 0
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
+  role       = aws_iam_role.iam_for_lambda_parameter_store_backup[0].name
+}
+
 resource "aws_lambda_function" "lambda_parameter_store_backup" {
   count            = var.backup_plan_config_parameter_store.enable ? 1 : 0
   filename         = data.archive_file.lambda_parameter_store_backup_zip[0].output_path
@@ -126,6 +132,9 @@ resource "aws_lambda_function" "lambda_parameter_store_backup" {
   handler          = "parameter_store_backup.lambda_handler"
   runtime          = "python3.12"
   timeout          = var.backup_plan_config_parameter_store.lambda_timeout_seconds
+
+  layers = var.lambda_insights_enable ? [local.lambda_insights_layer_arn] : []
+
   environment {
     variables = {
       KMS_KEY_ARN                 = var.destination_parameter_store_kms_key_arn

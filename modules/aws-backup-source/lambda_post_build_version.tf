@@ -53,6 +53,12 @@ resource "aws_iam_role_policy" "lambda_post_build_version_iam_permissions" {
   policy = data.aws_iam_policy_document.lambda_post_build_version_permissions.json
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_post_build_version_cloudwatch_insights" {
+  count      = var.lambda_insights_enable ? 1 : 0
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
+  role       = aws_iam_role.iam_for_lambda_post_build_version.name
+}
+
 data "archive_file" "lambda_post_build_version_zip" {
   type        = "zip"
   source_dir  = "${path.module}/resources/post_build_version/"
@@ -66,6 +72,9 @@ resource "aws_lambda_function" "lambda_post_build_version" {
   role             = aws_iam_role.iam_for_lambda_post_build_version.arn
   handler          = "post_build_version.lambda_handler"
   runtime          = "python3.12"
+
+  layers = var.lambda_insights_enable ? [local.lambda_insights_layer_arn] : []
+
   environment {
     variables = {
       AWS_ACCOUNT_ID      = data.aws_caller_identity.current.account_id
